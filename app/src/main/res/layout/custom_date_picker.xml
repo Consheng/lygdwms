@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_42dp"
+        android:background="@color/white"
+        android:padding="@dimen/_10dp">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="选择时间"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_16sp"/>
+
+        <TextView
+            android:id="@+id/tv_selectTime"
+            android:layout_width="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_height="wrap_content"
+            android:text="2012-12-12 12:08:06"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_16sp"/>
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_0.5dp"
+        android:background="@color/c_eaeaea"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:background="@color/white"
+            android:orientation="horizontal"
+            android:paddingBottom="15dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="15dp">
+
+            <ykk.xc.com.lygdwms.util.widget.DatePickerView
+                android:id="@+id/year_pv"
+                android:layout_width="0dp"
+                android:layout_height="160dp"
+                android:layout_weight="2"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:ems="1"
+                android:gravity="center"
+                android:text="年"
+                android:textColor="#333333"
+                android:textSize="14sp"/>
+
+            <ykk.xc.com.lygdwms.util.widget.DatePickerView
+                android:id="@+id/month_pv"
+                android:layout_width="0dp"
+                android:layout_height="160dp"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:ems="1"
+                android:gravity="center"
+                android:text="月"
+                android:textColor="#333333"
+                android:textSize="14sp"/>
+
+            <ykk.xc.com.lygdwms.util.widget.DatePickerView
+                android:id="@+id/day_pv"
+                android:layout_width="0dp"
+                android:layout_height="160dp"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:ems="1"
+                android:gravity="center"
+                android:text="日"
+                android:textColor="#333333"
+                android:textSize="14sp"/>
+
+            <ykk.xc.com.lygdwms.util.widget.DatePickerView
+                android:id="@+id/hour_pv"
+                android:layout_width="0dp"
+                android:layout_height="160dp"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/hour_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:ems="1"
+                android:gravity="center"
+                android:text="时"
+                android:textColor="#333333"
+                android:textSize="14sp"/>
+
+            <ykk.xc.com.lygdwms.util.widget.DatePickerView
+                android:id="@+id/minute_pv"
+                android:layout_width="0dp"
+                android:layout_height="160dp"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/minute_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:ems="1"
+                android:gravity="center"
+                android:text="分"
+                android:textColor="#333333"
+                android:textSize="14sp"/>
+
+            <ykk.xc.com.lygdwms.util.widget.DatePickerView
+                android:id="@+id/second_pv"
+                android:layout_width="0dp"
+                android:layout_height="160dp"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/second_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:ems="1"
+                android:gravity="center"
+                android:text="秒"
+                android:textColor="#333333"
+                android:textSize="14sp"/>
+
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_0.5dp"
+        android:background="@color/c_eaeaea"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_42dp"
+        android:background="@color/white">
+
+        <TextView
+            android:id="@+id/tv_cancle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="取消"
+            android:textColor="@color/black"
+            android:textSize="16sp"/>
+
+        <View
+            android:layout_width="@dimen/_0.5dp"
+            android:layout_height="@dimen/_32dp"
+            android:layout_gravity="center"
+            android:background="@color/c_eaeaea"/>
+
+        <TextView
+            android:id="@+id/tv_confirm"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="确定"
+            android:textColor="@color/black"
+            android:textSize="16sp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

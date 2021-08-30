@@ -12,12 +12,10 @@ import butterknife.OnClick
 import kotlinx.android.synthetic.main.shippinglist_fragment1.*
 import kotlinx.android.synthetic.main.shippinglist_main.viewPager
 import okhttp3.*
+import org.greenrobot.eventbus.EventBus
 import ykk.xc.com.lygdwms.R
 import ykk.xc.com.lygdwms.basics.ShippingListTitle_DialogActivity
-import ykk.xc.com.lygdwms.bean.ShippingList
-import ykk.xc.com.lygdwms.bean.ShippingListEntry
-import ykk.xc.com.lygdwms.bean.ShippingListTitle
-import ykk.xc.com.lygdwms.bean.User
+import ykk.xc.com.lygdwms.bean.*
 import ykk.xc.com.lygdwms.comm.BaseFragment
 import ykk.xc.com.lygdwms.comm.Comm
 import ykk.xc.com.lygdwms.util.JsonUtil
@@ -73,15 +71,16 @@ class ShippingList_Fragment1 : BaseFragment() {
                     msgObj = msg.obj as String
                 }
                 when (msg.what) {
-                    FIND_ENTRY -> { // 查询主表信息 成功
+                    FIND_ENTRY -> { // 查询分录信息 成功
                         val list = JsonUtil.strToList(msgObj, ShippingListEntry::class.java)
                         m.listEntry = list
                         m.parent!!.viewPager.setScanScroll(true); // 放开左右滑动
                         m.setEnables(m.tv_titleSel, R.drawable.back_style_gray2a,false)
                         // 滑动第二个页面
 //                        m.parent!!.viewPager!!.setCurrentItem(1, false)
+                        EventBus.getDefault().post(EventBusEntity(1)) // 发送指令到fragment3，查询分类信息
                     }
-                    UNFIND_ENTRY -> { // 查询主表信息 失败
+                    UNFIND_ENTRY -> { // 查询分录信息 失败
                         errMsg = JsonUtil.strToString(msgObj)
                         if (m.isNULLS(errMsg).length == 0) errMsg = "查询信息有错误！2秒后自动关闭..."
                         Comm.showWarnDialog(m.mContext, errMsg)
@@ -143,24 +142,24 @@ class ShippingList_Fragment1 : BaseFragment() {
     @OnClick(R.id.tv_titleSel, R.id.tv_so, R.id.tv_cabinetNo, R.id.tv_seal, R.id.tv_carLicense, R.id.tv_needArrivalTime, R.id.tv_actualArrivalTime, R.id.tv_leaveTime, R.id.tv_delayReason)
     fun onViewClicked(view: View) {
         when (view.id) {
-            R.id.tv_titleSel -> { // 选择日期
+            R.id.tv_titleSel -> { // 选择出库清单
                 showForResult(ShippingListTitle_DialogActivity::class.java, SEL_TITLE, null)
             }
             R.id.tv_so -> { // SO
                 writeFlag = 'A'
-                showInputDialog("SO", "", "none", WRITE_CODE)
+                showInputDialog("SO", isNULLS(shippingList.so), "none", WRITE_CODE)
             }
             R.id.tv_cabinetNo -> { // 柜号
                 writeFlag = 'B'
-                showInputDialog("柜号", "", "none", WRITE_CODE)
+                showInputDialog("柜号", isNULLS(shippingList.cabinetNo), "none", WRITE_CODE)
             }
             R.id.tv_seal -> { // 封条
                 writeFlag = 'C'
-                showInputDialog("封条", "", "none", WRITE_CODE)
+                showInputDialog("封条", isNULLS(shippingList.seal), "none", WRITE_CODE)
             }
             R.id.tv_carLicense -> { // 车牌
                 writeFlag = 'D'
-                showInputDialog("车牌", "", "none", WRITE_CODE)
+                showInputDialog("车牌", isNULLS(shippingList.carLicense), "none", WRITE_CODE)
             }
             R.id.tv_needArrivalTime -> { // 要求货柜到厂时间
                 Comm.showDateDialog(mContext, view, 0)
@@ -175,7 +174,7 @@ class ShippingList_Fragment1 : BaseFragment() {
             }
             R.id.tv_delayReason -> { // 延时原因
                 writeFlag = 'E'
-                showInputDialog("延时原因", "", "none", WRITE_CODE)
+                showInputDialog("延时原因", isNULLS(shippingList.delayReason), "none", WRITE_CODE)
             }
         }
     }
@@ -217,6 +216,23 @@ class ShippingList_Fragment1 : BaseFragment() {
                     val shippingListTitle = data!!.getSerializableExtra("obj") as ShippingListTitle
                     tv_titleSel.text = shippingListTitle.title
                     shippingList.id = shippingListTitle.shippingListId
+                    shippingList.so = shippingListTitle.shippingList.so
+                    shippingList.cabinetNo = shippingListTitle.shippingList.cabinetNo
+                    shippingList.seal = shippingListTitle.shippingList.seal
+                    shippingList.carLicense = shippingListTitle.shippingList.carLicense
+                    shippingList.needArrivalTime = shippingListTitle.shippingList.needArrivalTime
+                    shippingList.actualArrivalTime = shippingListTitle.shippingList.actualArrivalTime
+                    shippingList.leaveTime = shippingListTitle.shippingList.leaveTime
+                    shippingList.delayReason = shippingListTitle.shippingList.delayReason
+                    // 显示数据
+                    tv_so.text = isNULLS(shippingList.so)
+                    tv_cabinetNo.text = isNULLS(shippingList.cabinetNo)
+                    tv_seal.text = isNULLS(shippingList.seal)
+                    tv_carLicense.text = isNULLS(shippingList.carLicense)
+                    tv_needArrivalTime.text = isNULLS(shippingList.needArrivalTime)
+                    tv_actualArrivalTime.text = isNULLS(shippingList.actualArrivalTime)
+                    tv_leaveTime.text = isNULLS(shippingList.leaveTime)
+                    tv_delayReason.text = isNULLS(shippingList.delayReason)
                     run_findEntryList()
                 }
                 WRITE_CODE -> {// 输入条码  返回

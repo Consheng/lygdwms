@@ -17,6 +17,8 @@ public class ShippingListTitle implements Serializable {
 	private String item4;	
 	private String item5;	
 	private String item6;
+
+	private ShippingList shippingList;
 	
 	public ShippingListTitle() {
 		super();
@@ -86,5 +88,11 @@ public class ShippingListTitle implements Serializable {
 		this.item6 = item6;
 	}
 
-	
+	public ShippingList getShippingList() {
+		return shippingList;
+	}
+
+	public void setShippingList(ShippingList shippingList) {
+		this.shippingList = shippingList;
+	}
 }

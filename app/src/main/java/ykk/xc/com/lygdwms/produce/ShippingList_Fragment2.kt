@@ -1,6 +1,7 @@
 package ykk.xc.com.lygdwms.produce
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Handler
 import android.os.Message
@@ -17,6 +18,8 @@ import com.huawei.hms.ml.scan.HmsScan
 import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions
 import kotlinx.android.synthetic.main.shippinglist_fragment2.*
 import okhttp3.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 import ykk.xc.com.lygdwms.R
 import ykk.xc.com.lygdwms.bean.*
 import ykk.xc.com.lygdwms.comm.BaseFragment
@@ -27,7 +30,6 @@ import ykk.xc.com.lygdwms.util.JsonUtil
 import ykk.xc.com.lygdwms.util.LogUtil
 import java.io.IOException
 import java.lang.ref.WeakReference
-import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 
 /**
@@ -38,6 +40,8 @@ class ShippingList_Fragment2 : BaseFragment() {
     companion object {
         private val SUCC1 = 200
         private val UNSUCC1 = 500
+        private val SUCC2 = 201
+        private val UNSUCC2 = 501
 
         private val SETFOCUS = 1
         private val SAOMA = 2
@@ -51,9 +55,9 @@ class ShippingList_Fragment2 : BaseFragment() {
     private var isTextChange: Boolean = false // 是否进入TextChange事件
     var listDatas = ArrayList<ShippingListEntry>()
     private var mAdapter: ShippingList_Fragment2_Adapter? = null
-    private var barcodeTable :BarcodeTable? = null
-    private val df = DecimalFormat("#.####")
-    private val mapBarcodeQty = HashMap<String, Double>()
+//    private val df = DecimalFormat("#.####")
+    private val mapBarcodeQty = HashMap<Int, Double>()
+    private var curPos = -1
 
     // 消息处理
     private val mHandler = MyHandler(this)
@@ -79,6 +83,18 @@ class ShippingList_Fragment2 : BaseFragment() {
                         val bt = JsonUtil.strToObject(msgObj, BarcodeTable::class.java)
                         m.setRowData(bt)
                     }
+                    UNSUCC1 -> { // 扫码失败 进入
+                        errMsg = JsonUtil.strToString(msgObj)
+                        if (m.isNULLS(errMsg).length == 0) errMsg = "很抱歉，没有查询到数据！"
+                        Comm.showWarnDialog(m.mContext, errMsg)
+                    }
+                    SUCC2 -> { // 删除成功 进入
+                        m.deleteRow(m.curPos)
+                    }
+                    UNSUCC2 -> { // 删除失败 进入
+//                        Comm.showWarnDialog(m.mContext, "删除失败！")
+                        m.deleteRow(m.curPos)
+                    }
                     SETFOCUS -> { // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
                         m.setFocusable(m.et_getFocus)
                         m.setFocusable(m.et_code)
@@ -87,6 +103,17 @@ class ShippingList_Fragment2 : BaseFragment() {
                         // 执行查询方法
                         m.run_smDatas()
                     }
+                }
+            }
+        }
+    }
+
+    @Subscribe
+    fun onEventBus(entity: EventBusEntity) {
+        when (entity.caseId) {
+            1 -> { // 接收第一个页面发来的指令
+                if(parent!!.fragment1.listEntry != null) {
+                    setEntryList()
                 }
             }
         }
@@ -107,11 +134,28 @@ class ShippingList_Fragment2 : BaseFragment() {
         // 设值listview空间失去焦点
         recyclerView.isFocusable = false
 
+        // 长按清空数量
+        mAdapter!!.setOnItemLongClickListener { adapter, holder, view, position ->
+            val build = AlertDialog.Builder(mContext)
+            build.setIcon(R.drawable.caution)
+            build.setTitle("系统提示")
+            build.setMessage("您确认要清空选中行的扫码信息吗？")
+            build.setPositiveButton("是") { dialog, which ->
+                curPos = position
+                run_removeByParentId(listDatas[position].id.toString())
+            }
+            build.setNegativeButton("否", null)
+            build.setCancelable(false)
+            build.show()
+        }
+
         /*// 行事件
         mAdapter!!.setCallBack(object : Prod_Barcode_Change_Fragment2_Adapter.MyCallBack {
             override fun onDelete(entity: BarcodeTableChange, position: Int) {
             }
         })*/
+
+        EventBus.getDefault().register(this) // 注册EventBus
     }
 
     override fun initData() {
@@ -130,9 +174,9 @@ class ShippingList_Fragment2 : BaseFragment() {
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
         if (isVisibleToUser) {
-            if(parent!!.fragment1.listEntry != null) {
+            /*if(parent!!.fragment1.listEntry != null) {
                 setEntryList()
-            }
+            }*/
             mHandler.sendEmptyMessageDelayed(SETFOCUS, 200)
         }
     }
@@ -185,11 +229,40 @@ class ShippingList_Fragment2 : BaseFragment() {
 
     }
 
+    /**
+     * 删除行扫码信息
+     */
+    private fun deleteRow(position :Int) {
+        listDatas[position].shippingListEntryBarcodes.forEach{
+            if(mapBarcodeQty.containsKey(it.barcodeId)) {
+                mapBarcodeQty.remove(it.barcodeId)
+            }
+        }
+        listDatas[position].shippingListEntryBarcodes.clear()
+        listDatas[position].outQty = 0.0
+    }
+
     private fun setEntryList() {
         listDatas.addAll(parent!!.fragment1.listEntry!!)
+        val listBarcodes = ArrayList<ShippingListEntryBarcode>()
         listDatas.forEach{
-            it.outQty = 0.0
+//            it.outQty = 0.0
+            listBarcodes.addAll(it.shippingListEntryBarcodes)
         }
+        mapBarcodeQty.clear()
+        // 先把每个条码的可用数量记录起来，第二次循环就减去历史扫码数量，得到可用扫码数
+        listBarcodes.forEach {
+            mapBarcodeQty.put(it.barcodeId, it.barcodeQty)
+        }
+        // 计算条码目前可用的扫码数
+        listBarcodes.forEach {
+            if(mapBarcodeQty.containsKey(it.barcodeId)) {
+                val barcodeQty = mapBarcodeQty.get(it.barcodeId)
+                val subVal = BigdecimalUtil.sub(barcodeQty!!, it.fqty)
+                mapBarcodeQty.put(it.barcodeId, subVal)
+            }
+        }
+
         mAdapter!!.notifyDataSetChanged()
         parent!!.fragment1.listEntry = null
     }
@@ -222,16 +295,16 @@ class ShippingList_Fragment2 : BaseFragment() {
         }
         if(isMatch) {
             if(position > -1) {
-                if(!mapBarcodeQty.containsKey(bt.barcode)) {
-                    mapBarcodeQty.put(bt.barcode, bt.remainQty)
+                if(!mapBarcodeQty.containsKey(bt.id)) {
+                    mapBarcodeQty.put(bt.id, bt.remainQty)
                 }
                 // 如果用完了提示
-                if(mapBarcodeQty[bt.barcode]!! <= 0) {
+                if(mapBarcodeQty[bt.id]!! <= 0) {
                     Comm.showWarnDialog(mContext,"当前条码（"+bt.barcode+"）数量已经用完！")
                     return
                 }
                 val subVal = BigdecimalUtil.sub(listDatas[position].usableQty, listDatas[position].outQty)
-                val usableQty = mapBarcodeQty.get(bt.barcode)!!
+                val usableQty = mapBarcodeQty.get(bt.id)!!
                 var updateBarcodeQty = 0.0
                 var realQty = 0.0
                 if(subVal > usableQty) {
@@ -242,7 +315,7 @@ class ShippingList_Fragment2 : BaseFragment() {
                     realQty = subVal
                     updateBarcodeQty = BigdecimalUtil.sub(usableQty, subVal)
                 }
-                mapBarcodeQty[bt.barcode] = updateBarcodeQty
+                mapBarcodeQty[bt.id] = updateBarcodeQty
 
                 var isExist = false
                 listDatas[position].shippingListEntryBarcodes.forEach{
@@ -261,7 +334,6 @@ class ShippingList_Fragment2 : BaseFragment() {
                     listDatas[position].shippingListEntryBarcodes.add(entryBarcode)
                 }
                 listDatas[position].outQty += realQty
-
             }
 
         } else { // 没有匹配到就新增一行
@@ -336,7 +408,7 @@ class ShippingList_Fragment2 : BaseFragment() {
                 .add("barcode", getValues(et_code))
                 .add("strCaseId", "30,31,32,33,34")
 //                .add("searchStockInfo", "1")    // 查询仓库信息
-//                .add("searchUnitInfo", "1")     // 查询单位信息
+                .add("searchUnitInfo", "1")     // 查询单位信息
                 .build()
 
         val request = Request.Builder()
@@ -368,6 +440,44 @@ class ShippingList_Fragment2 : BaseFragment() {
     }
 
     /**
+     * 删除行的扫码信息
+     */
+    private fun run_removeByParentId(parentId :String) {
+        showLoadDialog("加载中...", false)
+        var mUrl = getURL("shippingList/removeByParentId")
+        val formBody = FormBody.Builder()
+            .add("parentId", parentId)
+            .build()
+
+        val request = Request.Builder()
+            .addHeader("cookie", getSession())
+            .url(mUrl)
+            .post(formBody)
+            .build()
+
+        val call = okHttpClient!!.newCall(request)
+        call.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                mHandler.sendEmptyMessage(UNSUCC2)
+            }
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body()
+                val result = body.string()
+                LogUtil.e("run_removeByParentId --> onResponse", result)
+                if (!JsonUtil.isSuccess(result)) {
+                    val msg = mHandler.obtainMessage(UNSUCC2, result)
+                    mHandler.sendMessage(msg)
+                    return
+                }
+                val msg = mHandler.obtainMessage(SUCC2, result)
+                mHandler.sendMessage(msg)
+            }
+        })
+    }
+
+    /**
      * 得到用户对象
      */
     private fun getUserInfo() {
@@ -377,6 +487,7 @@ class ShippingList_Fragment2 : BaseFragment() {
     override fun onDestroyView() {
         closeHandler(mHandler)
         mBinder!!.unbind()
+        EventBus.getDefault().unregister(this)
         super.onDestroyView()
     }
 }

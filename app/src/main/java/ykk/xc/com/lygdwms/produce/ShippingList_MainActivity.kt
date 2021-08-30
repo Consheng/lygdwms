@@ -149,7 +149,7 @@ class ShippingList_MainActivity : BaseActivity() {
         }
     }
 
-    @OnClick(R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2, R.id.btn_clone, R.id.btn_save)
+    @OnClick(R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2, R.id.btn_clone, R.id.btn_save, R.id.btn_pass)
     fun onViewClicked(view: View) {
         // setCurrentItem第二个参数控制页面切换动画
         //  true:打开/false:关闭
@@ -189,36 +189,10 @@ class ShippingList_MainActivity : BaseActivity() {
                 }
             }
             R.id.btn_save -> { // 保存
-                if(fragment2.listDatas.size == 0) {
-                    Comm.showWarnDialog(context,"列表信息不完善，不能保存！")
-                    return
-                }
-                val listResult = ArrayList<ShippingListEntry>()
-                var unFinishPosition = -1 // 是否有数量未扫完
-                fragment2.listDatas.forEachIndexed { index, it ->
-                    if(it.outQty > 0) {
-                        listResult.add(it)
-                        if(it.usableQty > it.outQty) {
-                            unFinishPosition = index
-                        }
-                    }
-                }
-                if(listResult.size == 0) {
-                    Comm.showWarnDialog(context,"请至少扫描一个有效条码来匹配数量！")
-                    return
-                }
-                if(unFinishPosition > -1) {
-                    val build = AlertDialog.Builder(context)
-                    build.setIcon(R.drawable.caution)
-                    build.setTitle("系统提示")
-                    build.setMessage("第（"+(unFinishPosition+1)+"）行，数量未扫完，是否保存？")
-                    build.setPositiveButton("是") { dialog, which -> run_save(listResult) }
-                    build.setNegativeButton("否", null)
-                    build.setCancelable(false)
-                    build.show()
-                } else {
-                    run_save(listResult)
-                }
+                saveData("0")
+            }
+            R.id.btn_pass -> { // 审核
+                saveData("1")
             }
             R.id.btn_clone -> { // 重置
                 if (fragment1.shippingList.id > 0) {
@@ -235,6 +209,42 @@ class ShippingList_MainActivity : BaseActivity() {
                     reset()
                 }
             }
+        }
+    }
+
+    /**
+     * 保存数据
+     */
+    private fun saveData(isPass: String)  {
+        if(fragment2.listDatas.size == 0) {
+            Comm.showWarnDialog(context,"列表信息不完善，不能保存！")
+            return
+        }
+        val listResult = ArrayList<ShippingListEntry>()
+        var unFinishPosition = -1 // 是否有数量未扫完
+        fragment2.listDatas.forEachIndexed { index, it ->
+            if(it.outQty > 0) {
+                listResult.add(it)
+                if(it.usableQty > it.outQty && unFinishPosition == -1) {
+                    unFinishPosition = index
+                }
+            }
+        }
+        if(listResult.size == 0) {
+            Comm.showWarnDialog(context,"请至少扫描一个有效条码来匹配数量！")
+            return
+        }
+        if(unFinishPosition > -1) {
+            val build = AlertDialog.Builder(context)
+            build.setIcon(R.drawable.caution)
+            build.setTitle("系统提示")
+            build.setMessage("第（"+(unFinishPosition+1)+"）行，数量未扫完，是否保存？")
+            build.setPositiveButton("是") { dialog, which -> run_save(listResult,isPass) }
+            build.setNegativeButton("否", null)
+            build.setCancelable(false)
+            build.show()
+        } else {
+            run_save(listResult,isPass)
         }
     }
 
@@ -284,7 +294,7 @@ class ShippingList_MainActivity : BaseActivity() {
     /**
      * 保存
      */
-    private fun run_save(listResult : ArrayList<ShippingListEntry>) {
+    private fun run_save(listResult : ArrayList<ShippingListEntry>, isPass :String) {
         fragment1.shippingList.needArrivalTime = getValues(tv_needArrivalTime)
         fragment1.shippingList.actualArrivalTime = getValues(tv_actualArrivalTime)
         fragment1.shippingList.leaveTime = getValues(tv_leaveTime)
@@ -294,6 +304,7 @@ class ShippingList_MainActivity : BaseActivity() {
         val formBody = FormBody.Builder()
             .add("strJson", JsonUtil.objectToString(fragment1.shippingList))
             .add("strJsonEntry", JsonUtil.objectToString(listResult))
+            .add("isPass", isPass) // 是否审核
             .build()
 
         val request = Request.Builder()

@@ -29,6 +29,9 @@ public class ShippingListEntryBarcode implements Serializable {
 	//实际出库数量
 	private double fqty;
 
+	// 状态 (0:创建，1：审核，3：关闭)
+	private int status;
+
 	//操作人id
 	private int createUserId;
 
@@ -80,6 +83,14 @@ public class ShippingListEntryBarcode implements Serializable {
 
 	public void setFqty(double fqty) {
 		this.fqty = fqty;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
 	}
 
 	public int getCreateUserId() {

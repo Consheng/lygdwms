@@ -58,7 +58,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_orderNo"
-        android:text="出货数："
+        android:text="发货数："
         android:textColor="@color/c_666666"
         android:textSize="@dimen/_12sp" />
 

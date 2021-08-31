@@ -397,7 +397,7 @@ class BarcodeGenerateActivity : BaseActivity() {
         // 物料---长按输入条码
         et_code.setOnLongClickListener {
             smFlag = '1'
-            showInputDialog("输入条码号", getValues(et_code), "none", WRITE_CODE)
+            showInputDialog("输入条码号", getValues(et_code).trim(), "none", WRITE_CODE)
             true
         }
         // 物料---焦点改变
@@ -427,7 +427,7 @@ class BarcodeGenerateActivity : BaseActivity() {
         // 位置---长按输入条码
         et_positionCode!!.setOnLongClickListener {
             smFlag = '2'
-            showInputDialog("输入条码号", getValues(et_positionCode), "none", WRITE_CODE)
+            showInputDialog("输入条码号", getValues(et_positionCode).trim(), "none", WRITE_CODE)
             true
         }
         // 位置---焦点改变
@@ -997,11 +997,11 @@ class BarcodeGenerateActivity : BaseActivity() {
         when(smFlag) {
             '1' -> {
                 mUrl = getURL("barcodeTable/findBarcodeBySource")
-                barcode = getValues(et_code)
+                barcode = getValues(et_code).trim()
             }
             '2' -> {
                 mUrl = getURL("stockPosition/findBarcodeGroup")
-                barcode = getValues(et_positionCode)
+                barcode = getValues(et_positionCode).trim()
             }
         }
         val formBody = FormBody.Builder()
@@ -1050,7 +1050,7 @@ class BarcodeGenerateActivity : BaseActivity() {
         }
         val mUrl = getURL("barcodeTableGenerateCount/findIsCreateCode")
         val formBody = FormBody.Builder()
-                .add("billNo", getValues(et_code))
+                .add("billNo", getValues(et_code).trim())
                 .add("caseId", caseId.toString())
                 .build()
         val request = Request.Builder()
@@ -1323,15 +1323,6 @@ class BarcodeGenerateActivity : BaseActivity() {
         }
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        // 按了删除键，回退键
-        //        if(!isKeyboard && (event.getKeyCode() == KeyEvent.KEYCODE_FORWARD_DEL || event.getKeyCode() == KeyEvent.KEYCODE_DEL)) {
-        // 240 为PDA两侧面扫码键，241 为PDA中间扫码键
-        return if (!(event.keyCode == 240 || event.keyCode == 241)) {
-            false
-        } else super.dispatchKeyEvent(event)
-    }
-
     /**
      * 得到用户对象
      */
@@ -1342,6 +1333,13 @@ class BarcodeGenerateActivity : BaseActivity() {
     override fun onStop() {
         super.onStop()
         unregisterReceiver(receiver)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            context.finish()
+        }
+        return false
     }
 
     override fun onDestroy() {

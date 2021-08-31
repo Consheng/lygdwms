@@ -220,7 +220,7 @@ class Prod_Barcode_Change_Fragment1 : BaseFragment() {
         })
         // 物料---长按输入条码
         et_code!!.setOnLongClickListener {
-            showInputDialog("输入条码号", getValues(et_code), "none", WRITE_CODE)
+            showInputDialog("输入条码号", getValues(et_code).trim(), "none", WRITE_CODE)
             true
         }
         // 物料---焦点改变
@@ -325,7 +325,7 @@ class Prod_Barcode_Change_Fragment1 : BaseFragment() {
         showLoadDialog("加载中...", false)
         var mUrl = getURL("barcodeTable/findBarcode")
         val formBody = FormBody.Builder()
-                .add("barcode", getValues(et_code))
+                .add("barcode", getValues(et_code).trim())
                 .add("caseId", "20")
                 .add("searchStockInfo", "1")    // 查询仓库信息
                 .add("searchUnitInfo", "1")     // 查询单位信息

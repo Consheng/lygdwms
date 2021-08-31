@@ -313,7 +313,7 @@ class MaterialDeliveryActivity : BaseActivity() {
         // 发货单---长按输入条码
         et_sourceCode.setOnLongClickListener {
             smFlag = '1'
-            showInputDialog("输入条码号", getValues(et_sourceCode), "none", WRITE_CODE)
+            showInputDialog("输入条码号", getValues(et_sourceCode).trim(), "none", WRITE_CODE)
             true
         }
         // 发货单---焦点改变
@@ -343,7 +343,7 @@ class MaterialDeliveryActivity : BaseActivity() {
         // 物料---长按输入条码
         et_code.setOnLongClickListener {
             smFlag = '2'
-            showInputDialog("输入条码号", getValues(et_code), "none", WRITE_CODE)
+            showInputDialog("输入条码号", getValues(et_code).trim(), "none", WRITE_CODE)
             true
         }
         // 物料---焦点改变
@@ -499,7 +499,7 @@ class MaterialDeliveryActivity : BaseActivity() {
         showLoadDialog("加载中...", false)
         val mUrl = getURL("deliveryNotice/findEntryByParam")
         val formBody = FormBody.Builder()
-                .add("barcode", getValues(et_sourceCode))
+                .add("barcode", getValues(et_sourceCode).trim())
                 .build()
         val request = Request.Builder()
                 .addHeader("cookie", session)
@@ -537,7 +537,7 @@ class MaterialDeliveryActivity : BaseActivity() {
         showLoadDialog("加载中...", false)
         val mUrl = getURL("barcodeTable/findBarcode")
         val formBody = FormBody.Builder()
-                .add("barcode", getValues(et_code))
+                .add("barcode", getValues(et_code).trim())
                 .add("caseId", "20")
                 .add("searchStockInfo", "1")    // 查询仓库信息
                 .add("searchUnitInfo", "1")     // 查询单位信息
@@ -817,15 +817,6 @@ class MaterialDeliveryActivity : BaseActivity() {
         }
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        // 按了删除键，回退键
-        //        if(!isKeyboard && (event.getKeyCode() == KeyEvent.KEYCODE_FORWARD_DEL || event.getKeyCode() == KeyEvent.KEYCODE_DEL)) {
-        // 240 为PDA两侧面扫码键，241 为PDA中间扫码键
-        return if (!(event.keyCode == 240 || event.keyCode == 241)) {
-            false
-        } else super.dispatchKeyEvent(event)
-    }
-
     /**
      * 得到用户对象
      */
@@ -836,6 +827,13 @@ class MaterialDeliveryActivity : BaseActivity() {
     override fun onStop() {
         super.onStop()
         unregisterReceiver(receiver)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            context.finish()
+        }
+        return false
     }
 
     override fun onDestroy() {

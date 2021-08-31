@@ -142,7 +142,7 @@ class StockPos_DialogActivity : BaseDialogActivity(), XRecyclerView.LoadingListe
         showLoadDialog("加载中...", false)
         val mUrl = getURL("stockPosition/findListByPage")
         val formBody = FormBody.Builder()
-                .add("fnumberOrName", getValues(et_search).trim { it <= ' ' })
+                .add("fnumberOrName", getValues(et_search).trim())
                 .add("stockId", stockId.toString())
                 .add("stockAreaId", stockAreaId.toString())
                 .add("storageRackId", storageRackId.toString())

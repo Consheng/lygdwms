@@ -192,10 +192,10 @@ class Prod_Barcode_Change_Fragment2 : BaseFragment() {
                 ScanUtil.startScan(mContext, BaseFragment.CAMERA_SCAN, HmsScanAnalyzerOptions.Creator().setHmsScanTypes(HmsScan.ALL_SCAN_TYPE).create());
             }
             R.id.tv_barcodeSize -> { // 个数
-                showInputDialog("个数", getValues(tv_barcodeSize), "0", RESULT_SIZE)
+                showInputDialog("个数", getValues(tv_barcodeSize).trim(), "0", RESULT_SIZE)
             }
             R.id.tv_newQty -> { // 数量
-                showInputDialog("数量", getValues(tv_newQty), "0", RESULT_QTY)
+                showInputDialog("数量", getValues(tv_newQty).trim(), "0", RESULT_QTY)
             }
             R.id.btn_addRow -> { // 添加行
                 addRow()
@@ -260,7 +260,7 @@ class Prod_Barcode_Change_Fragment2 : BaseFragment() {
         })
         // 物料---长按输入条码
         et_code!!.setOnLongClickListener {
-            showInputDialog("输入条码号", getValues(et_code), "none", WRITE_CODE)
+            showInputDialog("输入条码号", getValues(et_code).trim(), "none", WRITE_CODE)
             true
         }
         // 物料---焦点改变
@@ -284,8 +284,8 @@ class Prod_Barcode_Change_Fragment2 : BaseFragment() {
             Comm.showWarnDialog(mContext, "请扫描条码！")
             return
         }
-        val size = parseDouble(getValues(tv_barcodeSize))
-        val fqty = parseDouble(getValues(tv_newQty))
+        val size = parseDouble(getValues(tv_barcodeSize).trim())
+        val fqty = parseDouble(getValues(tv_newQty).trim())
         if(size == 0.0) {
             Comm.showWarnDialog(mContext,"请输入个数！")
             return
@@ -401,9 +401,9 @@ class Prod_Barcode_Change_Fragment2 : BaseFragment() {
                         val size = parseDouble(value)
                         tv_barcodeSize.text = df.format(size)
                         // 自动打开数量填写界面
-                        val strQty = getValues(tv_newQty)
+                        val strQty = getValues(tv_newQty).trim()
                         if(strQty.length == 0) {
-                            showInputDialog("数量", getValues(tv_newQty), "0", RESULT_QTY)
+                            showInputDialog("数量", getValues(tv_newQty).trim(), "0", RESULT_QTY)
                         }
                     }
                 }
@@ -435,7 +435,7 @@ class Prod_Barcode_Change_Fragment2 : BaseFragment() {
         showLoadDialog("加载中...", false)
         var mUrl = getURL("barcodeTable/findBarcode")
         val formBody = FormBody.Builder()
-                .add("barcode", getValues(et_code))
+                .add("barcode", getValues(et_code).trim())
                 .add("strCaseId", "30,31,32,33,34")
                 .add("searchStockInfo", "1")    // 查询仓库信息
                 .add("searchUnitInfo", "1")     // 查询单位信息
@@ -482,6 +482,7 @@ class Prod_Barcode_Change_Fragment2 : BaseFragment() {
         }
 
         barcodeTable!!.barcodeQty = sumNewQty
+        barcodeTable!!.remainQty = sumNewQty
         barcodeTable!!.createUserId = user!!.id
         barcodeTable!!.createUserName = user!!.username
 

@@ -66,14 +66,14 @@ class PublicInputDialog2 : BaseDialogActivity() {
         when (view.id) {
             R.id.btn_close -> context.finish()
             R.id.btn_confirm -> {
-                val inputName = getValues(et_input).trim { it <= ' ' }
+                val inputName = getValues(et_input).trim()
                 if (inputName.length == 0) {
-                    toasts("请输入" + getValues(tv_itemName) + "！")
+                    toasts("请输入" + getValues(tv_itemName).trim() + "！")
                     return
                 }
-                val inputName2 = getValues(et_input2).trim { it <= ' ' }
+                val inputName2 = getValues(et_input2).trim()
                 if (inputName2.length == 0) {
-                    toasts("请输入" + getValues(tv_itemName2) + "！")
+                    toasts("请输入" + getValues(tv_itemName2).trim() + "！")
                     return
                 }
                 val bundle = Bundle()

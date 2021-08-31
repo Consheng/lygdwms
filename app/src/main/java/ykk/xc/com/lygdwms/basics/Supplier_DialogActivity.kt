@@ -161,7 +161,7 @@ class Supplier_DialogActivity : BaseDialogActivity(), XRecyclerView.LoadingListe
         showLoadDialog("加载中...", false)
         val mUrl = getURL("supplier/findSupplierListByParam")
         val formBody = FormBody.Builder()
-                .add("fNumberAndName", getValues(et_search).trim { it <= ' ' })
+                .add("fNumberAndName", getValues(et_search).trim())
                 .add("limit", limit.toString())
                 .add("pageSize", "30")
                 .build()

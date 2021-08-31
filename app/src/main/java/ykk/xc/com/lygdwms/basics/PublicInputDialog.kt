@@ -142,7 +142,7 @@ class PublicInputDialog : BaseDialogActivity() {
             R.id.btn_confirm // 确定按钮
             -> {
                 hideKeyboard(et_input)
-                var inputName = getValues(et_input).trim { it <= ' ' }
+                var inputName = getValues(et_input).trim()
                 if (inputType == "0" || inputType == "0.0") {
                     //                    double num = parseDouble(inputName);
                     if (inputName.length == 0) {

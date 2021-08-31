@@ -133,7 +133,7 @@ class ShippingListTitle_DialogActivity : BaseDialogActivity(), XRecyclerView.Loa
         showLoadDialog("加载中...", false)
         val mUrl = getURL("shippingList/findTitleList")
         val formBody = FormBody.Builder()
-                .add("title", getValues(et_search).trim { it <= ' ' })
+                .add("title", getValues(et_search).trim())
                 .add("limit", limit.toString())
                 .add("pageSize", "30")
                 .build()

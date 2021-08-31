@@ -138,7 +138,7 @@ class StockArea_DialogActivity : BaseDialogActivity(), XRecyclerView.LoadingList
         showLoadDialog("加载中...", false)
         val mUrl = getURL("stockArea/findListByPage")
         val formBody = FormBody.Builder()
-                .add("fnumberOrName", getValues(et_search).trim { it <= ' ' })
+                .add("fnumberOrName", getValues(et_search).trim())
                 .add("stockId", stockId.toString())
                 .add("limit", limit.toString())
                 .add("pageSize", "30")

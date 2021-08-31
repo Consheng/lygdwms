@@ -690,19 +690,19 @@ class Stock_GroupDialogActivity : BaseDialogActivity() {
         when(smqFlag) {
             '1' -> {
                 mUrl = getURL("stock/findBarcode")
-                barcode = getValues(et_stockCode)
+                barcode = getValues(et_stockCode).trim()
             }
             '2' -> {
                 mUrl = getURL("stockArea/findBarcode")
-                barcode = getValues(et_stockAreaCode)
+                barcode = getValues(et_stockAreaCode).trim()
             }
             '3' -> {
                 mUrl = getURL("storageRack/findBarcode")
-                barcode = getValues(et_storageRackCode)
+                barcode = getValues(et_storageRackCode).trim()
             }
             '4' -> {
                 mUrl = getURL("stockPosition/findBarcode")
-                barcode = getValues(et_stockPosCode)
+                barcode = getValues(et_stockPosCode).trim()
             }
         }
         val formBody = FormBody.Builder()

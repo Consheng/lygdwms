@@ -140,9 +140,9 @@ class MaterialPositionMoveActivity : BaseActivity() {
         materialPositionMove.createUserId = user!!.id
         materialPositionMove.createUserName = user!!.username
 
-        tv_mtlName.text = Html.fromHtml("物料名称:&nbsp;<font color='#6a5acd'>" + bt.materialName + "</font>")
-        tv_mtlNumber.text = Html.fromHtml("物料代码:&nbsp;<font color='#6a5acd'>" + bt.materialNumber + "</font>")
-        tv_fmodel.text = Html.fromHtml("规格型号:&nbsp;<font color='#6a5acd'>" + bt.materialSize + "</font>")
+        tv_mtlName.text = bt.materialName
+        tv_mtlNumber.text = bt.materialNumber
+        tv_fmodel.text = bt.materialSize
         tv_barcode.text = Html.fromHtml("条码:&nbsp;<font color='#000000'>" + bt.barcode + "</font>")
         tv_barcodeQty.text = Html.fromHtml("数量:&nbsp;<font color='#6a5acd'>" + df.format(bt.barcodeQty) + "</font>")
         if(bt.stock != null) {
@@ -187,7 +187,7 @@ class MaterialPositionMoveActivity : BaseActivity() {
     }
 
     // 监听事件
-    @OnClick(R.id.btn_close, R.id.btn_scan,  R.id.btn_positionScan, R.id.btn_positionSel, R.id.btn_clone, R.id.btn_save)
+    @OnClick(R.id.btn_close, R.id.btn_scan,  R.id.btn_positionScan, R.id.btn_positionSel, R.id.btn_clone, R.id.btn_save, R.id.tv_mtlName, R.id.tv_mtlNumber, R.id.tv_fmodel)
     fun onViewClicked(view: View) {
         when (view.id) {
             R.id.btn_close -> {
@@ -242,6 +242,15 @@ class MaterialPositionMoveActivity : BaseActivity() {
                     return
                 }
                 run_add()
+            }
+            R.id.tv_mtlName -> {    // 物料名称点击
+                Comm.showWarnDialog(context,getValues(tv_mtlName))
+            }
+            R.id.tv_mtlNumber -> {  // 物料代码点击
+                Comm.showWarnDialog(context,getValues(tv_mtlNumber))
+            }
+            R.id.tv_fmodel -> { // 规格型号点击
+                Comm.showWarnDialog(context,getValues(tv_fmodel))
             }
         }
     }
@@ -326,9 +335,9 @@ class MaterialPositionMoveActivity : BaseActivity() {
         et_code.setText("")
         et_positionCode.setText("")
 
-        tv_mtlName.text = "物料名称："
-        tv_mtlNumber.text = "物料代码："
-        tv_fmodel.text = "规格型号："
+        tv_mtlName.text = ""
+        tv_mtlNumber.text = ""
+        tv_fmodel.text = ""
         tv_barcode.text = "条码："
         tv_barcodeQty.text = "数量：0"
         tv_stockName.text = "仓库："

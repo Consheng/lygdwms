@@ -100,29 +100,76 @@
         android:padding="@dimen/_6dp">
 
         <TextView
-            android:id="@+id/tv_mtlName"
+            android:id="@+id/tv_mtlName_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="物料名称："
+            android:paddingTop="@dimen/_6dp"
+            android:paddingBottom="@dimen/_6dp"
+            android:textColor="@color/c_666666"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_mtlName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/_6dp"
+            android:layout_toRightOf="@+id/tv_mtlName_title"
+            android:paddingBottom="@dimen/_6dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text=""
+            android:textColor="@color/c_6a5acd"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_mtlNumber_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_mtlName"
+            android:text="物料代码："
+            android:paddingTop="@dimen/_6dp"
+            android:paddingBottom="@dimen/_6dp"
             android:textColor="@color/c_666666"
             android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tv_mtlNumber"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_mtlName"
-            android:text="物料代码："
+            android:text=""
+            android:paddingTop="@dimen/_6dp"
+            android:layout_toRightOf="@+id/tv_mtlName_title"
+            android:paddingBottom="@dimen/_6dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@color/c_6a5acd"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_fmodel_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_mtlNumber"
+            android:paddingTop="@dimen/_6dp"
+            android:paddingBottom="@dimen/_6dp"
+            android:text="规格型号："
             android:textColor="@color/c_666666"
             android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tv_fmodel"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_mtlNumber"
-            android:text="规格型号："
-            android:textColor="@color/c_666666"
+            android:paddingTop="@dimen/_6dp"
+            android:paddingBottom="@dimen/_6dp"
+            android:layout_toRightOf="@+id/tv_fmodel_title"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text=""
+            android:textColor="@color/c_6a5acd"
             android:textSize="12sp" />
 
         <TextView

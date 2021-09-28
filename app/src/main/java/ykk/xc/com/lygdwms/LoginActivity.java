@@ -20,7 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -38,6 +40,7 @@ import ykk.xc.com.lygdwms.comm.Comm;
 import ykk.xc.com.lygdwms.comm.Consts;
 import ykk.xc.com.lygdwms.entrance.MainTabFragmentActivity;
 import ykk.xc.com.lygdwms.entrance.page5.ServiceSetActivity;
+import ykk.xc.com.lygdwms.produce.ShippingScanConfirmDialog;
 import ykk.xc.com.lygdwms.util.JsonUtil;
 
 public class LoginActivity extends BaseActivity {
@@ -129,6 +132,15 @@ public class LoginActivity extends BaseActivity {
             setTexts(etPwd, user.getPassword());
         }
         requestPermission();
+        /*btnLogin.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Map<String, Object> map = new HashMap<>();
+                ShippingScanConfirmDialog dialog = new ShippingScanConfirmDialog(context, map);
+                dialog.show();
+                return false;
+            }
+        });*/
     }
 
     @Override

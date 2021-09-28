@@ -20,6 +20,7 @@ import kotlinx.android.synthetic.main.shippinglist_fragment2.*
 import okhttp3.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import ykk.xc.com.lygdwms.R
 import ykk.xc.com.lygdwms.bean.*
 import ykk.xc.com.lygdwms.comm.BaseFragment
@@ -58,6 +59,7 @@ class ShippingList_Fragment2 : BaseFragment() {
 //    private val df = DecimalFormat("#.####")
     private val mapBarcodeQty = HashMap<Int, Double>()
     private var curPos = -1
+    private var bt :BarcodeTable? = null
 
     // 消息处理
     private val mHandler = MyHandler(this)
@@ -80,8 +82,9 @@ class ShippingList_Fragment2 : BaseFragment() {
                 }
                 when (msg.what) {
                     SUCC1 -> { // 扫码成功 进入
-                        val bt = JsonUtil.strToObject(msgObj, BarcodeTable::class.java)
-                        m.setRowData(bt)
+                        m.bt = JsonUtil.strToObject(msgObj, BarcodeTable::class.java)
+                        m.scanAConfirmDialog()
+//                        m.setRowData(bt)
                     }
                     UNSUCC1 -> { // 扫码失败 进入
                         errMsg = JsonUtil.strToString(msgObj)
@@ -115,6 +118,16 @@ class ShippingList_Fragment2 : BaseFragment() {
                 if(parent!!.fragment1.listEntry != null) {
                     setEntryList()
                 }
+            }
+            100 -> { // 扫码确认--取消
+                et_code.setText("")
+                mHandler.sendEmptyMessage(SETFOCUS)
+            }
+            200 -> { // 扫码确认--确认
+                setRowData(bt!!)
+
+                et_code.setText("")
+                mHandler.sendEmptyMessage(SETFOCUS)
             }
         }
     }
@@ -280,13 +293,75 @@ class ShippingList_Fragment2 : BaseFragment() {
     }
 
     /**
+     * 扫码之后弹框确认
+     */
+    private fun scanAConfirmDialog() {
+        var position = -1
+        listDatas.forEachIndexed { index, it ->
+            if(bt!!.materialId == it.materialId && isNULLS(bt!!.forderBillNo).equals(it.orderNo)) {
+                position = index
+            }
+        }
+        val map = HashMap<String, String>()
+        map.put("item1", if(position == -1) "0" else (position+1).toString())
+        map.put("item2", bt!!.materialName)
+        map.put("item3", bt!!.forderBillNo)
+        if(position == -1) {
+            if(bt!!.caseId == 31 || bt!!.caseId == 32 || bt!!.caseId == 33) {
+                Comm.showWarnDialog(mContext,"当前条码（"+bt!!.barcode+"）不能匹配到行列表！")
+                return
+            }
+            map.put("item4", bt!!.remainQty.toString())
+            map.put("item5", "0")
+            map.put("item6", bt!!.remainQty.toString())
+            map.put("item7", bt!!.remainQty.toString())
+            map.put("item8", bt!!.remainQty.toString() )
+            map.put("item9", "0" )
+            map.put("item10", "0" )
+
+        } else {
+
+            if(!mapBarcodeQty.containsKey(bt!!.id)) {
+                mapBarcodeQty.put(bt!!.id, bt!!.remainQty)
+            }
+            // 如果用完了提示
+            if(mapBarcodeQty[bt!!.id]!! <= 0) {
+                Comm.showWarnDialog(mContext,"当前条码（"+bt!!.barcode+"）数量已经用完！")
+                return
+            }
+            val subVal = BigdecimalUtil.sub(listDatas[position].usableQty, listDatas[position].outQty)
+            val usableQty = mapBarcodeQty.get(bt!!.id)!!
+            var realQty = 0.0
+            if(subVal > usableQty) {
+                realQty = usableQty
+
+            } else {
+                realQty = subVal
+            }
+
+            map.put("item4", listDatas[position].usableQty.toString())
+            map.put("item5", listDatas[position].outQty.toString())
+            map.put("item6", usableQty.toString())
+            map.put("item7", realQty.toString())
+            val sumSmQty = BigdecimalUtil.add(listDatas[position].outQty, realQty)
+            val remainSmQty = BigdecimalUtil.sub(listDatas[position].usableQty, sumSmQty)
+            map.put("item8", sumSmQty.toString() )
+            map.put("item9", if(remainSmQty <= 0) "0" else remainSmQty.toString() )
+            map.put("item10", "0" )
+        }
+
+        val dialog = ShippingScanConfirmDialog(mContext!!, map)
+        dialog.show()
+    }
+
+    /**
      * 设置行数据
      */
     private fun setRowData(bt :BarcodeTable) {
         var isMatch = false
         var position = -1
         listDatas.forEachIndexed { index, it ->
-            if(bt.materialId == it.materialId) {
+            if(bt.materialId == it.materialId && isNULLS(bt.forderBillNo).equals(it.orderNo)) {
                 isMatch = true
                 if(it.outQty < it.usableQty) {
                     position = index
@@ -295,7 +370,7 @@ class ShippingList_Fragment2 : BaseFragment() {
         }
         if(isMatch) {
             if(position > -1) {
-                if(!mapBarcodeQty.containsKey(bt.id)) {
+                /*if(!mapBarcodeQty.containsKey(bt.id)) {
                     mapBarcodeQty.put(bt.id, bt.remainQty)
                 }
                 // 如果用完了提示
@@ -303,6 +378,7 @@ class ShippingList_Fragment2 : BaseFragment() {
                     Comm.showWarnDialog(mContext,"当前条码（"+bt.barcode+"）数量已经用完！")
                     return
                 }
+                */
                 val subVal = BigdecimalUtil.sub(listDatas[position].usableQty, listDatas[position].outQty)
                 val usableQty = mapBarcodeQty.get(bt.id)!!
                 var updateBarcodeQty = 0.0
@@ -337,10 +413,10 @@ class ShippingList_Fragment2 : BaseFragment() {
             }
 
         } else { // 没有匹配到就新增一行
-            if(bt.caseId == 31 || bt.caseId == 32 || bt.caseId == 33) {
+            /*if(bt.caseId == 31 || bt.caseId == 32 || bt.caseId == 33) {
                 Comm.showWarnDialog(mContext,"当前条码（"+bt.barcode+"）不能匹配到行列表！")
                 return
-            }
+            }*/
 
             val m = ShippingListEntry()
             m.id = 0

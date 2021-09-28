@@ -29,7 +29,6 @@ import com.gprinter.command.LabelCommand
 import com.huawei.hms.hmsscankit.ScanUtil
 import com.huawei.hms.ml.scan.HmsScan
 import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions
-import kotlinx.android.synthetic.main.ab_item4_inventorynow_search.*
 import kotlinx.android.synthetic.main.barcode_generate.*
 import okhttp3.*
 import ykk.xc.com.lygdwms.R

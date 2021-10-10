@@ -315,7 +315,7 @@ class ShippingList_Fragment2 : BaseFragment() {
             map.put("item5", "0")
             map.put("item6", bt!!.remainQty.toString())
             map.put("item7", bt!!.remainQty.toString())
-            map.put("item8", bt!!.remainQty.toString() )
+            map.put("item8", bt!!.remainQty.toString())
             map.put("item9", "0" )
             map.put("item10", "0" )
 
@@ -332,7 +332,8 @@ class ShippingList_Fragment2 : BaseFragment() {
             val subVal = BigdecimalUtil.sub(listDatas[position].usableQty, listDatas[position].outQty)
             val usableQty = mapBarcodeQty.get(bt!!.id)!!
             var realQty = 0.0
-            if(subVal > usableQty) {
+
+            if (subVal > usableQty || listDatas[position].id == 0) {
                 realQty = usableQty
 
             } else {
@@ -363,7 +364,7 @@ class ShippingList_Fragment2 : BaseFragment() {
         listDatas.forEachIndexed { index, it ->
             if(bt.materialId == it.materialId && isNULLS(bt.forderBillNo).equals(it.orderNo)) {
                 isMatch = true
-                if(it.outQty < it.usableQty) {
+                if(it.outQty < it.usableQty || it.id == 0) {
                     position = index
                 }
             }
@@ -383,7 +384,7 @@ class ShippingList_Fragment2 : BaseFragment() {
                 val usableQty = mapBarcodeQty.get(bt.id)!!
                 var updateBarcodeQty = 0.0
                 var realQty = 0.0
-                if(subVal > usableQty) {
+                if(subVal > usableQty || listDatas[position].id == 0) {
                     realQty = usableQty
                     updateBarcodeQty = BigdecimalUtil.sub(usableQty, usableQty)
 
